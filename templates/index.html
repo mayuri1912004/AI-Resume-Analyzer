@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Analyzer</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="hero">
+        <div class="container">
+            <p class="eyebrow">CAREER TOOLKIT</p>
+            <h1>AI Resume Analyzer</h1>
+            <p>Discover how your resume matches a job description.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="card">
+            <h2>Analyze your resume</h2>
+            <p class="muted">
+                Upload a PDF or DOCX and enter the job requirements.
+            </p>
+
+            <form method="POST" enctype="multipart/form-data">
+                <label for="resume">Resume file</label>
+                <input id="resume" name="resume" type="file"
+                       accept=".pdf,.docx" required>
+
+                <label for="job_description">Job description</label>
+                <textarea id="job_description" name="job_description"
+                    rows="7" required
+                    placeholder="Example: Python, AWS, Linux, Flask, SQL..."
+                ></textarea>
+
+                <button type="submit">Analyze Resume</button>
+            </form>
+        </section>
+
+        {% if error %}
+        <section class="card error" role="alert">
+            <h3>Unable to analyze</h3>
+            <p>{{ error }}</p>
+        </section>
+        {% endif %}
+
+        {% if results %}
+        <section class="card">
+            <h2>Analysis results</h2>
+            <div class="score">{{ results.score }}%</div>
+            <p class="muted">
+                Estimated keyword overlap, not a hiring probability.
+            </p>
+
+            <div class="stats">
+                <div>
+                    <strong>{{ results.word_count }}</strong>
+                    <span>Words found</span>
+                </div>
+                <div>
+                    <strong>{{ results.matched_skills|length }}</strong>
+                    <span>Matched skills</span>
+                </div>
+                <div>
+                    <strong>{{ results.missing_skills|length }}</strong>
+                    <span>Missing skills</span>
+                </div>
+            </div>
+
+            <p><strong>Email:</strong> {{ results.email }}</p>
+            <p><strong>Phone:</strong> {{ results.phone }}</p>
+        </section>
+
+        <section class="card">
+            <h2>Skills found in resume</h2>
+            <div class="tags">
+                {% for skill in results.resume_skills %}
+                    <span class="tag">{{ skill }}</span>
+                {% else %}
+                    <p>No supported skills detected.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Matching job skills</h2>
+            <div class="tags">
+                {% for skill in results.matched_skills %}
+                    <span class="tag good">{{ skill }}</span>
+                {% else %}
+                    <p>No matching skills detected.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Missing job keywords</h2>
+            <div class="tags">
+                {% for skill in results.missing_skills %}
+                    <span class="tag missing">{{ skill }}</span>
+                {% else %}
+                    <p>All detected job keywords were matched.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Suggestions</h2>
+            <ul>
+                {% for suggestion in results.suggestions %}
+                    <li>{{ suggestion }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <p class="notice">
+            Results depend on readable text and supported keywords.
+            Verify all suggestions yourself before editing your resume.
+        </p>
+        {% endif %}
+    </main>
+
+    <footer>
+        <div class="container">
+            AI Resume Analyzer · Built with Python and Flask
+        </div>
+    </footer>
+</body>
+</html>
